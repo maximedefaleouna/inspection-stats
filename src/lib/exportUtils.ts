@@ -3,12 +3,12 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import {
   classes, niveaux, cycles, filieres,
-  EffectifClasse, Etablissement, Agent, AnneeData,
+  EffectifClasse, Etablissement, Inspection, Agent, AnneeData,
   getEffectifClasse,
 } from "@/data/schoolData";
 
 interface ExportPayload {
-  etablissement: Etablissement;
+  etablissement: Etablissement | Inspection; // Support both school and inspection data
   annee: string;
   data: AnneeData;
 }
@@ -54,15 +54,18 @@ export function exportExcel({ etablissement, annee, data }: ExportPayload) {
   const ws2 = XLSX.utils.json_to_sheet(agentRows);
   XLSX.utils.book_append_sheet(wb, ws2, "Personnel");
 
-  XLSX.writeFile(wb, `${etablissement.nom} - ${annee}.xlsx`);
+  // Handle both Etablissement and Inspection objects
+  const nom = 'nom' in etablissement ? etablissement.nom : etablissement.denomination;
+  XLSX.writeFile(wb, `${nom} - ${annee}.xlsx`);
 }
 
 export function exportPDF({ etablissement, annee, data }: ExportPayload) {
   const doc = new jsPDF();
 
-  // Title
+  // Title - Handle both Etablissement and Inspection objects
+  const nom = 'nom' in etablissement ? etablissement.nom : etablissement.denomination;
   doc.setFontSize(16);
-  doc.text(etablissement.nom, 14, 20);
+  doc.text(nom, 14, 20);
   doc.setFontSize(10);
   doc.text(`Chef: ${etablissement.chef}`, 14, 28);
   doc.text(`${etablissement.ville}, ${etablissement.region} | Tél: ${etablissement.telephone}`, 14, 34);
@@ -102,7 +105,7 @@ export function exportPDF({ etablissement, annee, data }: ExportPayload) {
     headStyles: { fillColor: [30, 41, 82] },
   });
 
-  doc.save(`${etablissement.nom} - ${annee}.pdf`);
+  doc.save(`${nom} - ${annee}.pdf`);
 }
 
 export function exportJSON(payload: ExportPayload) {
@@ -111,7 +114,9 @@ export function exportJSON(payload: ExportPayload) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `${payload.etablissement.nom} - ${payload.annee}.json`;
+  // Handle both Etablissement and Inspection objects
+  const nom = 'nom' in payload.etablissement ? payload.etablissement.nom : payload.etablissement.denomination;
+  a.download = `${nom} - ${payload.annee}.json`;
   a.click();
   URL.revokeObjectURL(url);
 }

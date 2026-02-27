@@ -1,5 +1,15 @@
-// Types
+// Types for Inspection (managing multiple schools)
+export interface Inspection {
+  denomination: string;
+  chef: string;
+  region: string;
+  ville: string;
+  prefecture: string;
+  telephone: string;
+}
+
 export interface Etablissement {
+  id: string; // Unique identifier for each school
   nom: string;
   chef: string;
   region: string;
@@ -9,6 +19,7 @@ export interface Etablissement {
 }
 
 export type CategoriePersonnel = "Administratif" | "Enseignant" | "Appui";
+export type CategorieInspection = "Administratif" | "Inspecteur" | "Appui";
 export type Sexe = "M" | "F";
 
 export interface Agent {
@@ -21,6 +32,18 @@ export interface Agent {
   sexe: Sexe;
   dateNaissance: string;
   categorie: CategoriePersonnel;
+}
+
+export interface InspectionAgent {
+  id: string;
+  matricule: string;
+  nom: string;
+  prenoms: string;
+  specialite: string;
+  poste: string;
+  sexe: Sexe;
+  dateNaissance: string;
+  categorie: CategorieInspection;
 }
 
 export interface Cycle {
@@ -58,9 +81,15 @@ export interface AnneeData {
   agents: Agent[];
 }
 
-export interface AppData {
+export interface SchoolData {
   etablissement: Etablissement;
   annees: Record<string, AnneeData>; // key = "2025-2026"
+}
+
+export interface AppData {
+  inspection: Inspection;
+  ecoles: Record<string, SchoolData>; // key = school id
+  inspectionAgents: InspectionAgent[];
 }
 
 // Static structure
@@ -110,18 +139,25 @@ export const classes: Classe[] = [
 
 // Default data
 const defaultAgents: Agent[] = [
-  { id: "a1", matricule: "ADM-001", nom: "KOUAME", prenoms: "Jean-Baptiste", specialite: "Gestion", poste: "Secrétaire Principal", sexe: "M", dateNaissance: "1975-03-15", categorie: "Administratif" },
-  { id: "a2", matricule: "ADM-002", nom: "BAMBA", prenoms: "Fatoumata", specialite: "Comptabilité", poste: "Comptable", sexe: "F", dateNaissance: "1980-07-22", categorie: "Administratif" },
-  { id: "a3", matricule: "ENS-001", nom: "TRAORE", prenoms: "Moussa", specialite: "Mathématiques", poste: "Professeur", sexe: "M", dateNaissance: "1982-11-10", categorie: "Enseignant" },
-  { id: "a4", matricule: "ENS-002", nom: "DIALLO", prenoms: "Aminata", specialite: "Français", poste: "Professeur", sexe: "F", dateNaissance: "1985-01-28", categorie: "Enseignant" },
-  { id: "a5", matricule: "ENS-003", nom: "COULIBALY", prenoms: "Seydou", specialite: "Physique-Chimie", poste: "Professeur", sexe: "M", dateNaissance: "1979-06-05", categorie: "Enseignant" },
-  { id: "a6", matricule: "ENS-004", nom: "KONE", prenoms: "Mariam", specialite: "SVT", poste: "Professeur", sexe: "F", dateNaissance: "1988-09-18", categorie: "Enseignant" },
-  { id: "a7", matricule: "ENS-005", nom: "OUATTARA", prenoms: "Ibrahim", specialite: "Anglais", poste: "Professeur", sexe: "M", dateNaissance: "1983-04-12", categorie: "Enseignant" },
-  { id: "a8", matricule: "ENS-006", nom: "YAO", prenoms: "Adjoua", specialite: "Histoire-Géo", poste: "Professeur", sexe: "F", dateNaissance: "1986-12-01", categorie: "Enseignant" },
-  { id: "a9", matricule: "APP-001", nom: "SANOGO", prenoms: "Drissa", specialite: "Maintenance", poste: "Agent d'entretien", sexe: "M", dateNaissance: "1970-08-20", categorie: "Appui" },
-  { id: "a10", matricule: "APP-002", nom: "CAMARA", prenoms: "Kadiatou", specialite: "Restauration", poste: "Cuisinière", sexe: "F", dateNaissance: "1978-02-14", categorie: "Appui" },
-  { id: "a11", matricule: "ENS-007", nom: "CISSE", prenoms: "Mamadou", specialite: "Mécanique", poste: "Professeur Technique", sexe: "M", dateNaissance: "1981-05-30", categorie: "Enseignant" },
-  { id: "a12", matricule: "ENS-008", nom: "TOURE", prenoms: "Salimata", specialite: "Comptabilité", poste: "Professeur Technique", sexe: "F", dateNaissance: "1984-10-08", categorie: "Enseignant" },
+  { id: "a1", matricule: "ADM-001", nom: "ADJOKAN", prenoms: "Kodjo", specialite: "Gestion", poste: "Secrétaire Principal", sexe: "M", dateNaissance: "1975-03-15", categorie: "Administratif" },
+  { id: "a2", matricule: "ADM-002", nom: "AGBENYO", prenoms: "Afi", specialite: "Comptabilité", poste: "Comptable", sexe: "F", dateNaissance: "1980-07-22", categorie: "Administratif" },
+  { id: "a3", matricule: "ENS-001", nom: "KOKOU", prenoms: "Komi", specialite: "Mathématiques", poste: "Professeur", sexe: "M", dateNaissance: "1982-11-10", categorie: "Enseignant" },
+  { id: "a4", matricule: "ENS-002", nom: "AWOLI", prenoms: "Akouavi", specialite: "Français", poste: "Professeur", sexe: "F", dateNaissance: "1985-01-28", categorie: "Enseignant" },
+  { id: "a5", matricule: "ENS-003", nom: "DZRAMA", prenoms: "Sena", specialite: "Physique-Chimie", poste: "Professeur", sexe: "M", dateNaissance: "1979-06-05", categorie: "Enseignant" },
+  { id: "a6", matricule: "ENS-004", nom: "KOKO", prenoms: "Mawuli", specialite: "SVT", poste: "Professeur", sexe: "F", dateNaissance: "1988-09-18", categorie: "Enseignant" },
+  { id: "a7", matricule: "ENS-005", nom: "AGBELE", prenoms: "Kossi", specialite: "Anglais", poste: "Professeur", sexe: "M", dateNaissance: "1983-04-12", categorie: "Enseignant" },
+  { id: "a8", matricule: "ENS-006", nom: "KODZO", prenoms: "Afia", specialite: "Histoire-Géo", poste: "Professeur", sexe: "F", dateNaissance: "1986-12-01", categorie: "Enseignant" },
+  { id: "a9", matricule: "APP-001", nom: "KLOVI", prenoms: "Kodjo", specialite: "Maintenance", poste: "Agent d'entretien", sexe: "M", dateNaissance: "1970-08-20", categorie: "Appui" },
+  { id: "a10", matricule: "APP-002", nom: "KPEDE", prenoms: "Kodjo", specialite: "Restauration", poste: "Cuisinière", sexe: "F", dateNaissance: "1978-02-14", categorie: "Appui" },
+  { id: "a11", matricule: "ENS-007", nom: "KLODZI", prenoms: "Koffi", specialite: "Mécanique", poste: "Professeur Technique", sexe: "M", dateNaissance: "1981-05-30", categorie: "Enseignant" },
+  { id: "a12", matricule: "ENS-008", nom: "AGBLE", prenoms: "Akou", specialite: "Comptabilité", poste: "Professeur Technique", sexe: "F", dateNaissance: "1984-10-08", categorie: "Enseignant" },
+];
+
+const defaultInspectionAgents: InspectionAgent[] = [
+  { id: "ia1", matricule: "INS-001", nom: "ADJOKAN", prenoms: "Kodjo", specialite: "Administration", poste: "Inspecteur Principal", sexe: "M", dateNaissance: "1970-05-12", categorie: "Administratif" },
+  { id: "ia2", matricule: "INS-002", nom: "AGBENYO", prenoms: "Afi", specialite: "Pédagogie", poste: "Inspectrice Pédagogique", sexe: "F", dateNaissance: "1975-08-25", categorie: "Inspecteur" },
+  { id: "ia3", matricule: "INS-003", nom: "KOKOU", prenoms: "Komi", specialite: "Surveillance", poste: "Agent de Surveillance", sexe: "M", dateNaissance: "1980-03-18", categorie: "Appui" },
+  { id: "ia4", matricule: "INS-004", nom: "AWOLI", prenoms: "Koffi", specialite: "Coordination", poste: "Inspecteur Coordinateur", sexe: "M", dateNaissance: "1972-11-03", categorie: "Inspecteur" },
 ];
 
 function generateDefaultEffectifs(): EffectifClasse[] {
@@ -132,22 +168,55 @@ function generateDefaultEffectifs(): EffectifClasse[] {
   }));
 }
 
+
+
 export function getDefaultAppData(): AppData {
   return {
-    etablissement: {
-      nom: "Lycée Technique d'Abidjan",
-      chef: "M. KOUASSI Konan Pierre",
-      region: "District d'Abidjan",
-      ville: "Abidjan",
-      prefecture: "Abidjan",
-      telephone: "+225 27 20 21 45 67",
+    inspection: {
+      denomination: "Inspection de l'Éducation Nationale de la Région de Kara",
+      chef: "M. Chef d'Inspection de Kara",
+      region: "Région de Kara",
+      ville: "Kara",
+      prefecture: "Kara",
+      telephone: "+228 22 10 20 30",
     },
-    annees: {
-      "2025-2026": {
-        effectifs: generateDefaultEffectifs(),
-        agents: defaultAgents,
+    ecoles: {
+      "school_1": {
+        etablissement: {
+          id: "school_1",
+          nom: "Lycée Technique de Kara",
+          chef: "M. KODJO Koffi Jean",
+          region: "Région de Kara",
+          ville: "Kara",
+          prefecture: "Kara",
+          telephone: "+228 22 15 25 35",
+        },
+        annees: {
+          "2025-2026": {
+            effectifs: generateDefaultEffectifs(),
+            agents: defaultAgents,
+          }
+        }
       },
+      "school_2": {
+        etablissement: {
+          id: "school_2",
+          nom: "Collège Moderne de Bafilo",
+          chef: "Mme. AMEDOME Akouavi",
+          region: "Région de Kara",
+          ville: "Bafilo",
+          prefecture: "Bafilo",
+          telephone: "+228 22 40 50 60",
+        },
+        annees: {
+          "2025-2026": {
+            effectifs: generateDefaultEffectifs(),
+            agents: defaultAgents.slice(0, 8),
+          }
+        }
+      }
     },
+    inspectionAgents: defaultInspectionAgents,
   };
 }
 
@@ -193,4 +262,79 @@ export function getTotalEffectifs(effectifs: EffectifClasse[]) {
     filles: effectifs.reduce((s, e) => s + e.filles, 0),
     total: effectifs.reduce((s, e) => s + e.garcons + e.filles, 0),
   };
+}
+
+// Utility functions for aggregating data across multiple schools
+export function getAggregateEffectifs(appData: AppData, year: string): EffectifClasse[] {
+  const allEffectifs: EffectifClasse[] = [];
+  
+  Object.values(appData.ecoles).forEach(school => {
+    const yearData = school.annees[year];
+    if (yearData) {
+      allEffectifs.push(...yearData.effectifs);
+    }
+  });
+  
+  return allEffectifs;
+}
+
+export function getAggregateAgents(appData: AppData, year: string): Agent[] {
+  const allAgents: Agent[] = [];
+  
+  Object.values(appData.ecoles).forEach(school => {
+    const yearData = school.annees[year];
+    if (yearData) {
+      allAgents.push(...yearData.agents);
+    }
+  });
+  
+  return allAgents;
+}
+
+export function getSchoolList(appData: AppData): Etablissement[] {
+  return Object.values(appData.ecoles).map(school => school.etablissement);
+}
+
+// Utility functions for consolidated personnel view
+export interface ConsolidatedAgent extends Omit<Agent, 'categorie'> {
+  schoolId: string;
+  schoolName: string;
+  source: 'school' | 'inspection';
+  categorie: CategoriePersonnel | CategorieInspection;
+}
+
+export function getConsolidatedAgents(appData: AppData, year: string): ConsolidatedAgent[] {
+  const consolidatedAgents: ConsolidatedAgent[] = [];
+  
+  // Add school agents
+  Object.entries(appData.ecoles).forEach(([schoolId, school]) => {
+    const yearData = school.annees[year];
+    if (yearData) {
+      yearData.agents.forEach(agent => {
+        consolidatedAgents.push({
+          ...agent,
+          schoolId,
+          schoolName: school.etablissement.nom,
+          source: 'school'
+        });
+      });
+    }
+  });
+  
+  // Add inspection agents
+  appData.inspectionAgents.forEach(agent => {
+    consolidatedAgents.push({
+      ...agent,
+      schoolId: 'inspection',
+      schoolName: 'Inspection',
+      source: 'inspection'
+    });
+  });
+  
+  return consolidatedAgents;
+}
+
+export function filterAgentsBySchool(agents: ConsolidatedAgent[], schoolId: string): ConsolidatedAgent[] {
+  if (schoolId === 'all') return agents;
+  return agents.filter(agent => agent.schoolId === schoolId);
 }

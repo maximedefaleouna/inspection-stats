@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, GraduationCap, BarChart3, School, Menu, X, Settings, Download, Upload, FileJson, FileSpreadsheet, FileText, Plus, CalendarDays } from "lucide-react";
+import { LayoutDashboard, Users, GraduationCap, BarChart3, School, Menu, X, Settings, Download, Upload, FileJson, FileSpreadsheet, FileText, Plus, CalendarDays, BadgeIcon } from "lucide-react";
 import { useAppStore } from "@/hooks/useAppStore";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
@@ -14,6 +14,8 @@ import { exportJSON, exportExcel, exportPDF } from "@/lib/exportUtils";
 const navItems = [
   { to: "/", label: "Tableau de bord", icon: LayoutDashboard },
   { to: "/personnel", label: "Personnel", icon: Users },
+  { to: "/inspection-personnel", label: "Personnel d'inspection", icon: BadgeIcon },
+  { to: "/etablissements", label: "Établissements", icon: School },
   { to: "/effectifs", label: "Effectifs", icon: GraduationCap },
   { to: "/statistiques", label: "Statistiques", icon: BarChart3 },
   { to: "/parametres", label: "Paramètres", icon: Settings },
@@ -28,7 +30,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleExport = (format: "json" | "excel" | "pdf") => {
-    const payload = store.getExportData();
+    // For inspection, export aggregated data
+    const payload = store.getAggregatedData();
     if (format === "json") exportJSON(payload);
     else if (format === "excel") exportExcel(payload);
     else exportPDF(payload);
@@ -49,7 +52,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         const parsed = JSON.parse(json);
         const year = parsed.annee || store.selectedYear;
         store.importYearJSON(json, year);
-        toast({ title: "Import réussi", description: `Données de l'année ${year} importées.` });
+        toast({ title: "Import réussi", description: `Données de l'école importées pour l'année ${year}.` });
       } catch {
         toast({ title: "Erreur", description: "Fichier JSON invalide.", variant: "destructive" });
       }
@@ -82,8 +85,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <School className="h-5 w-5 text-sidebar-primary-foreground" />
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-sm font-heading font-bold truncate">{store.data.etablissement.nom}</h1>
-            <p className="text-xs text-sidebar-foreground/60 truncate">Année {store.selectedYear}</p>
+            <h1 className="text-sm font-heading font-bold truncate">{store.data.inspection.denomination}</h1>
+            <p className="text-xs text-sidebar-foreground/60 truncate">Année {store.selectedYear} • {Object.keys(store.data.ecoles).length} école(s)</p>
           </div>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-sidebar-foreground/60 hover:text-sidebar-foreground">
             <X className="h-5 w-5" />
@@ -111,9 +114,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="p-4 mx-3 mb-4 rounded-lg bg-sidebar-accent/50">
-          <p className="text-xs text-sidebar-foreground/60 font-medium">Chef d'établissement</p>
-          <p className="text-sm font-medium mt-0.5">{store.data.etablissement.chef}</p>
-          <p className="text-xs text-sidebar-foreground/50 mt-1">{store.data.etablissement.telephone}</p>
+          <p className="text-xs text-sidebar-foreground/60 font-medium">Chef d'inspection</p>
+          <p className="text-sm font-medium mt-0.5">{store.data.inspection.chef}</p>
+          <p className="text-xs text-sidebar-foreground/50 mt-1">{store.data.inspection.telephone}</p>
         </div>
       </aside>
 

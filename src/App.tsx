@@ -10,6 +10,9 @@ import Personnel from "./pages/Personnel";
 import Effectifs from "./pages/Effectifs";
 import Statistiques from "./pages/Statistiques";
 import Parametres from "./pages/Parametres";
+import InspectionPersonnel from "./pages/InspectionPersonnel";
+import AllPersonnel from "./pages/AllPersonnel";
+import Etablissements from "./pages/Etablissements";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +26,9 @@ function AppInner() {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/personnel" element={<Personnel />} />
+            <Route path="/inspection-personnel" element={<InspectionPersonnel />} />
+            <Route path="/all-personnel" element={<AllPersonnel />} />
+            <Route path="/etablissements" element={<Etablissements />} />
             <Route path="/effectifs" element={<Effectifs />} />
             <Route path="/statistiques" element={<Statistiques />} />
             <Route path="/parametres" element={<Parametres />} />

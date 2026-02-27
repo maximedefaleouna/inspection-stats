@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { Search, Plus, Pencil, Trash2 } from "lucide-react";
-import { Agent, CategoriePersonnel, Sexe } from "@/data/schoolData";
+import { Search } from "lucide-react";
+import { Agent, CategoriePersonnel, Sexe, getAggregateAgents } from "@/data/schoolData";
 import { useAppStore } from "@/hooks/useAppStore";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -16,33 +14,30 @@ const categorieColors: Record<CategoriePersonnel, string> = {
 };
 
 export default function PersonnelPage() {
-  const { currentAnnee, setAgents } = useAppStore();
-  const agentsList = currentAnnee.agents;
+  const { data, selectedYear } = useAppStore();
+  
+  // Get all agents with their school information
+  const agentsWithSchool = Object.entries(data.ecoles).flatMap(([schoolId, schoolData]) => {
+    const yearData = schoolData.annees[selectedYear];
+    if (!yearData) return [];
+    
+    return yearData.agents.map(agent => ({
+      ...agent,
+      schoolId,
+      schoolName: schoolData.etablissement.nom
+    }));
+  });
 
   const [search, setSearch] = useState("");
   const [filterCat, setFilterCat] = useState<string>("all");
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
+  const [filterSchool, setFilterSchool] = useState<string>("all");
 
-  const filtered = agentsList.filter(a => {
-    const matchSearch = `${a.nom} ${a.prenoms} ${a.matricule} ${a.specialite}`.toLowerCase().includes(search.toLowerCase());
-    const matchCat = filterCat === "all" || a.categorie === filterCat;
-    return matchSearch && matchCat;
+  const filtered = agentsWithSchool.filter(agent => {
+    const matchSearch = `${agent.nom} ${agent.prenoms} ${agent.matricule} ${agent.specialite}`.toLowerCase().includes(search.toLowerCase());
+    const matchCat = filterCat === "all" || agent.categorie === filterCat;
+    const matchSchool = filterSchool === "all" || agent.schoolId === filterSchool;
+    return matchSearch && matchCat && matchSchool;
   });
-
-  const handleSave = (agent: Agent) => {
-    if (editingAgent) {
-      setAgents(agentsList.map(a => a.id === agent.id ? agent : a));
-    } else {
-      setAgents([...agentsList, { ...agent, id: `a${Date.now()}` }]);
-    }
-    setDialogOpen(false);
-    setEditingAgent(null);
-  };
-
-  const handleDelete = (id: string) => {
-    setAgents(agentsList.filter(a => a.id !== id));
-  };
 
   return (
     <div className="space-y-4">
@@ -61,16 +56,24 @@ export default function PersonnelPage() {
               <SelectItem value="Appui">Appui</SelectItem>
             </SelectContent>
           </Select>
+          <Select value={filterSchool} onValueChange={setFilterSchool}>
+            <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Toutes les écoles</SelectItem>
+              {Object.entries(data.ecoles).map(([id, schoolData]) => (
+                <SelectItem key={id} value={id}>{schoolData.etablissement.nom}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-        <Button onClick={() => { setEditingAgent(null); setDialogOpen(true); }}>
-          <Plus className="h-4 w-4 mr-1" /> Ajouter
-        </Button>
       </div>
 
       <div className="flex gap-4 text-sm">
-        <span className="text-muted-foreground">{filtered.length} agent(s)</span>
+        <span className="text-muted-foreground">
+          {filtered.length} agent(s) dans {filterSchool === "all" ? Object.keys(data.ecoles).length : 1} école{filterSchool === "all" ? (Object.keys(data.ecoles).length > 1 ? "(s)" : "") : ""}
+        </span>
         <span className="text-muted-foreground">•</span>
-        <span>{agentsList.filter(a => a.sexe === "M").length} H / {agentsList.filter(a => a.sexe === "F").length} F</span>
+        <span>{filtered.filter(a => a.sexe === "M").length} H / {filtered.filter(a => a.sexe === "F").length} F</span>
       </div>
 
       <div className="rounded-xl border border-border bg-card overflow-hidden">
@@ -84,7 +87,7 @@ export default function PersonnelPage() {
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden lg:table-cell">Poste</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Catégorie</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden sm:table-cell">Sexe</th>
-                <th className="text-right px-4 py-3 font-medium text-muted-foreground">Actions</th>
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground">École</th>
               </tr>
             </thead>
             <tbody>
@@ -98,113 +101,13 @@ export default function PersonnelPage() {
                     <Badge variant="outline" className={categorieColors[agent.categorie]}>{agent.categorie}</Badge>
                   </td>
                   <td className="px-4 py-3 hidden sm:table-cell">{agent.sexe === "M" ? "Homme" : "Femme"}</td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex justify-end gap-1">
-                      <button onClick={() => { setEditingAgent(agent); setDialogOpen(true); }} className="p-1.5 rounded-md hover:bg-muted">
-                        <Pencil className="h-3.5 w-3.5" />
-                      </button>
-                      <button onClick={() => handleDelete(agent.id)} className="p-1.5 rounded-md hover:bg-destructive/10 text-destructive">
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  </td>
+                  <td className="px-4 py-3 text-muted-foreground">{agent.schoolName}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
-
-      <AgentDialog open={dialogOpen} onOpenChange={setDialogOpen} agent={editingAgent} onSave={handleSave} />
     </div>
-  );
-}
-
-function AgentDialog({ open, onOpenChange, agent, onSave }: {
-  open: boolean; onOpenChange: (v: boolean) => void; agent: Agent | null; onSave: (a: Agent) => void;
-}) {
-  const [form, setForm] = useState<Partial<Agent>>(agent ?? {});
-
-  const handleOpenChange = (v: boolean) => {
-    if (v) setForm(agent ?? {});
-    onOpenChange(v);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave({
-      id: agent?.id ?? "",
-      matricule: form.matricule ?? "",
-      nom: form.nom ?? "",
-      prenoms: form.prenoms ?? "",
-      specialite: form.specialite ?? "",
-      poste: form.poste ?? "",
-      sexe: (form.sexe as Sexe) ?? "M",
-      dateNaissance: form.dateNaissance ?? "",
-      categorie: (form.categorie as CategoriePersonnel) ?? "Enseignant",
-    });
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="font-heading">{agent ? "Modifier l'agent" : "Nouvel agent"}</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label>Matricule</Label>
-              <Input value={form.matricule ?? ""} onChange={e => setForm(p => ({ ...p, matricule: e.target.value }))} required />
-            </div>
-            <div>
-              <Label>Catégorie</Label>
-              <Select value={form.categorie ?? "Enseignant"} onValueChange={v => setForm(p => ({ ...p, categorie: v as CategoriePersonnel }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Administratif">Administratif</SelectItem>
-                  <SelectItem value="Enseignant">Enseignant</SelectItem>
-                  <SelectItem value="Appui">Appui</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Nom</Label>
-              <Input value={form.nom ?? ""} onChange={e => setForm(p => ({ ...p, nom: e.target.value }))} required />
-            </div>
-            <div>
-              <Label>Prénoms</Label>
-              <Input value={form.prenoms ?? ""} onChange={e => setForm(p => ({ ...p, prenoms: e.target.value }))} required />
-            </div>
-            <div>
-              <Label>Spécialité</Label>
-              <Input value={form.specialite ?? ""} onChange={e => setForm(p => ({ ...p, specialite: e.target.value }))} />
-            </div>
-            <div>
-              <Label>Poste occupé</Label>
-              <Input value={form.poste ?? ""} onChange={e => setForm(p => ({ ...p, poste: e.target.value }))} />
-            </div>
-            <div>
-              <Label>Sexe</Label>
-              <Select value={form.sexe ?? "M"} onValueChange={v => setForm(p => ({ ...p, sexe: v as Sexe }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="M">Masculin</SelectItem>
-                  <SelectItem value="F">Féminin</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Date de naissance</Label>
-              <Input type="date" value={form.dateNaissance ?? ""} onChange={e => setForm(p => ({ ...p, dateNaissance: e.target.value }))} />
-            </div>
-          </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Annuler</Button>
-            <Button type="submit">{agent ? "Enregistrer" : "Ajouter"}</Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
   );
 }

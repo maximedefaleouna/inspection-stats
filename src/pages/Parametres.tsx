@@ -7,26 +7,26 @@ import { toast } from "@/hooks/use-toast";
 import { Save } from "lucide-react";
 
 export default function ParametresPage() {
-  const { data, updateEtablissement } = useAppStore();
-  const [form, setForm] = useState({ ...data.etablissement });
+  const { data, updateInspection } = useAppStore();
+  const [form, setForm] = useState({ ...data.inspection });
 
   const handleSave = () => {
-    updateEtablissement(form);
-    toast({ title: "Enregistré", description: "Les informations de l'établissement ont été mises à jour." });
+    updateInspection(form);
+    toast({ title: "Enregistré", description: "Les informations de l'inspection ont été mises à jour." });
   };
 
   return (
     <div className="max-w-2xl space-y-6">
       <div className="rounded-xl border border-border bg-card p-6 space-y-5">
-        <h3 className="font-heading font-bold text-lg">Informations de l'établissement</h3>
+        <h3 className="font-heading font-bold text-lg">Informations de l'Inspection</h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="sm:col-span-2">
-            <Label>Nom de l'établissement</Label>
-            <Input value={form.nom} onChange={e => setForm(p => ({ ...p, nom: e.target.value }))} />
+            <Label>Dénomination de l'inspection</Label>
+            <Input value={form.denomination} onChange={e => setForm(p => ({ ...p, denomination: e.target.value }))} />
           </div>
           <div className="sm:col-span-2">
-            <Label>Chef d'établissement</Label>
+            <Label>Chef d'inspection</Label>
             <Input value={form.chef} onChange={e => setForm(p => ({ ...p, chef: e.target.value }))} />
           </div>
           <div>

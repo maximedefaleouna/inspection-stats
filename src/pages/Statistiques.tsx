@@ -3,6 +3,7 @@ import { useAppStore } from "@/hooks/useAppStore";
 import {
   cycles, filieres, niveaux, classes,
   getEffectifsByCycle, getEffectifsByFiliere, getEffectifsByNiveau, getEffectifClasse, getTotalEffectifs,
+  getAggregateEffectifs
 } from "@/data/schoolData";
 
 const COLORS = [
@@ -16,8 +17,9 @@ const COLORS = [
 ];
 
 export default function StatistiquesPage() {
-  const { currentAnnee } = useAppStore();
-  const effectifs = currentAnnee.effectifs;
+  const { data, selectedYear, getAggregatedData } = useAppStore();
+  const aggregatedData = getAggregatedData();
+  const effectifs = aggregatedData.data.effectifs;
   const totals = getTotalEffectifs(effectifs);
 
   const cycleData = cycles.map((c, i) => ({
@@ -45,10 +47,10 @@ export default function StatistiquesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="rounded-xl bg-card border border-border p-5 text-center">
           <p className="text-3xl font-heading font-bold">{totals.total}</p>
-          <p className="text-sm text-muted-foreground">Total inscrits</p>
+          <p className="text-sm text-muted-foreground">Total inscrits dans {Object.keys(data.ecoles).length} école(s)</p>
         </div>
         <div className="rounded-xl bg-card border border-border p-5 text-center">
           <p className="text-3xl font-heading font-bold text-info">{totals.garcons}</p>
@@ -114,7 +116,7 @@ export default function StatistiquesPage() {
                 </tr>
               </thead>
               <tbody>
-                {classeSexeData.map((row, i) => (
+                {classeSexeData.sort((a, b) => b.Total - a.Total).map((row, i) => (
                   <tr key={i} className="border-b border-border last:border-0">
                     <td className="py-2 px-2 font-medium">{row.name}</td>
                     <td className="text-right py-2 px-2 text-info">{row.Garçons}</td>

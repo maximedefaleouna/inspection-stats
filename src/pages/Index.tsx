@@ -5,6 +5,7 @@ import { useAppStore } from "@/hooks/useAppStore";
 import {
   cycles, niveaux, classes,
   getEffectifsByCycle, getEffectifsByNiveau, getEffectifClasse, getTotalEffectifs,
+  getAggregateEffectifs, getAggregateAgents
 } from "@/data/schoolData";
 
 const CHART_COLORS = [
@@ -17,10 +18,11 @@ const CHART_COLORS = [
 ];
 
 export default function Dashboard() {
-  const { data, currentAnnee, selectedYear } = useAppStore();
-  const effectifs = currentAnnee.effectifs;
-  const agents = currentAnnee.agents;
-  const etab = data.etablissement;
+  const { data, selectedYear, getAggregatedData } = useAppStore();
+  const aggregatedData = getAggregatedData();
+  const effectifs = aggregatedData.data.effectifs;
+  const agents = aggregatedData.data.agents;
+  const etab = data.inspection;
 
   const totals = getTotalEffectifs(effectifs);
 
@@ -48,7 +50,7 @@ export default function Dashboard() {
       <div className="rounded-xl bg-primary p-5 text-primary-foreground">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <h3 className="font-heading text-lg font-bold">{etab.nom}</h3>
+            <h3 className="font-heading text-lg font-bold">{etab.denomination}</h3>
             <p className="text-sm opacity-80">
               {etab.ville}, {etab.region} • Année scolaire {selectedYear}
             </p>
@@ -64,7 +66,7 @@ export default function Dashboard() {
         <StatCard title="Total Élèves" value={totals.total} icon={GraduationCap} color="primary" description="Inscrits cette année" />
         <StatCard title="Garçons" value={totals.garcons} icon={Users} color="info" description={totals.total > 0 ? `${((totals.garcons / totals.total) * 100).toFixed(1)}% de l'effectif` : "—"} />
         <StatCard title="Filles" value={totals.filles} icon={Users} color="accent" description={totals.total > 0 ? `${((totals.filles / totals.total) * 100).toFixed(1)}% de l'effectif` : "—"} />
-        <StatCard title="Personnel" value={agents.length} icon={Building} color="success" description={`${agents.filter(a => a.categorie === "Enseignant").length} enseignants`} />
+        <StatCard title="Écoles Supervisées" value={Object.keys(data.ecoles).length} icon={Building} color="success" description={`${agents.filter(a => a.categorie === "Enseignant").length} enseignants`} />
       </div>
 
       {/* Charts */}
