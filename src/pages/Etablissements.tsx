@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Plus, Upload, Download, Edit, Trash2, Users, GraduationCap } from "lucide-react";
+import { Plus, Upload, Download, Edit, Trash2, Users, GraduationCap, School } from "lucide-react";
 import { useAppStore } from "@/hooks/useAppStore";
 import { Etablissement, SchoolData } from "@/data/schoolData";
 import { Button } from "@/components/ui/button";
