@@ -1,73 +1,98 @@
-# Welcome to your Lovable project
+# Inspection Statistics - Plateforme de Supervision et Pilotage Academique
 
-## Project info
+Systeme d'information et tableau de bord decisionnel regional concu pour les inspections academiques, directions regionales de l'education et ministeres (developpe pour la supervision des etablissements de la Region de Kara, Togo).
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Ce module constitue le pendant institutionnel du module ecole (`school-stats`). Il permet aux inspecteurs et responsables educatifs de consolider les effectifs de l'ensemble des lycees et centres de formation technique, de suivre la parite de genre a l'echelle regionale, de superviser le corps enseignant et de piloter les indicateurs de performance scolaire.
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## Enjeux et Vision Institutionnelle
 
-**Use Lovable**
+A l'echelle d'une inspection pedagogique regionale ou d'un bassin d'education, la collecte des statistiques scolaires fait face a plusieurs defis structurels :
+- Fragmentation des donnees remontees par les differents etablissements scolaires.
+- Retards importants dans la consolidation des rapports d'effectifs pour les instances ministerielles.
+- Difficulte a comparer les performances relatives et les ratios d'encadrement enseignant/eleves entre les lycees generaux et techniques.
+- Besoin d'un outil d'aide a la decision pour orienter les dotations de personnel et les investissements pedagogiques.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+Inspection Statistics centralise ces flux de donnees, permet l'importation directe des bilans generes par les etablissements et automatise la generation d'indicateurs statistiques macroscopiques.
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## Fonctionnalites Principales
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 1. Supervision et Cartographie des Etablissements
+- **Repertoire regional** : Fiches d'identite completes de chaque etablissement sous tutelle (Lycée Technique, lycees d'enseignement general, centres d'apprentissage professionnel).
+- **Suivi des chefs d'etablissement** : Coordonnees directes, statut d'homologation et historique des bilans transmis.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### 2. Agregation et Suivi Global des Effectifs
+- **Consolidation macroscopique** : Effectif total d'eleves scolarises a l'echelle du district, reparti par genre (garcons / filles) et par cycle d'etude (BAC, BT, CAP).
+- **Indicateurs de parite et de scolarisation** : Analyse des taux de representation feminine dans les filieres industrielles, technologiques et generales.
+- **Ventilation multicritere** : Filtres analytiques par annee academique, type d'etablissement et filiere de formation.
 
-Follow these steps:
+### 3. Gestion et Recensement des Ressources Humaines
+- **Registre global des personnels** : Recensement consolide de tous les enseignants en poste dans les etablissements de la circonscription.
+- **Equipe d'inspection** : Gestion des inspecteurs pedagogiques, des conseillers et des affectations par bassin territorial.
+- **Ratios d'encadrement** : Comparatif des besoins en personnel et detection des sureffectifs ou deficits enseignants par matiere.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### 4. Analyses Statistiques et Tableaux de Bord Comparatifs
+- **Visualisations analytiques dynamiques** : Diagrammes de repartition par cycle, histogrammes de parite par niveau et graphiques comparatifs entre etablissements.
+- **Analyses de tendances** : Evolution pluriannuelle des inscriptions et des flux d'eleves.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### 5. Passerelle de Synchronisation et Imports
+- **Module d'import de donnees** : Reception et integration directe des fichiers JSON/CSV exportes depuis le module ecole (`school-stats`).
+- **Mode Bureau hors-ligne (Electron)** : Possibilite de travailler en deplacements ou zones a connectivite limitee avec synchronisation ulterieure.
 
-# Step 3: Install the necessary dependencies.
-npm i
+---
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+## Stack Technique
+
+| Categorie | Technologies |
+| :--- | :--- |
+| **Framework Frontend** | React 18, TypeScript, Vite |
+| **Design System & Composants** | Tailwind CSS, Shadcn UI, Radix UI Primitives, Lucide Icons |
+| **Visualisation de Donnees** | Recharts (Graphiques de synthese, camemberts, barres de correlation) |
+| **Formulaires & Validation** | React Hook Form, Zod |
+| **Gestion d'Etat & Cache** | TanStack React Query |
+| **Support Application Bureau** | Electron (Deploiement Desktop multiplateforme) |
+
+---
+
+## Installation et Lancement Local
+
+### 1. Prerequis
+- Node.js (version 18 ou superieure)
+- npm, yarn ou bun
+
+### 2. Cloner le depot
+```bash
+git clone https://github.com/maximedefaleouna/inspection-stats.git
+cd inspection-stats
 ```
 
-**Edit a file directly in GitHub**
+### 3. Installer les dependances
+```bash
+npm install
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 4. Lancer le serveur de developpement
+```bash
+npm run dev
+```
+Par defaut, l'application demarrera a l'adresse locale `http://localhost:4000` (port configure pour fonctionner conjointement avec le module ecole).
 
-**Use GitHub Codespaces**
+### 5. Lancer en mode Application Bureau (Electron)
+```bash
+npm run electron:start
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### 6. Compiler pour la production
+```bash
+npm run build
+```
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## Auteur
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+**Maxime DEFALEOUNA**
+- Profil GitHub : [@maximedefaleouna](https://github.com/maximedefaleouna)
